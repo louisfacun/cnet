@@ -123,16 +123,16 @@ Matrix* multiply_matrix(Matrix *matrix1, Matrix *matrix2)
 
     for (int i = 0; i < matrix1->rows; i++)
     {
-	    for (int j = 0; j < matrix2->cols; j++)
+        for (int j = 0; j < matrix2->cols; j++)
         {
-		    double sum = 0;
+            double sum = 0;
 
             for (int k = 0; k < matrix2->rows; k++)
             {
                 sum += matrix1->values[i][k] * matrix2->values[k][j];
             }
-			matrix_product->values[i][j] = sum;
-		}
-	}
+            matrix_product->values[i][j] = sum;
+        }
+    }
     return matrix_product;
 }
