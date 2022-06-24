@@ -1,10 +1,3 @@
-/*
- * Functions for:
- * 1. Creating matrices
- * 2. Freeing matrices 
- * 3. Matrices operations
- */
-
 #ifndef MATRIX_H
 #define MATRIX_H
 
@@ -13,6 +6,7 @@
  * However, we used struct against without the struct version: (double **values = malloc(...))
  * Because we want to store row and col sizes so we won't need to count it everytime by looping.
  * Meaning, no need to create a function that counts the row and sizes every time.
+ * Edit: I'm not sure if you can count malloced array!
  */
 
 typedef struct
@@ -21,25 +15,23 @@ typedef struct
     int rows;        // Row size
     int cols;        // Column size
 }
-Matrix;
+matrix;
 
-Matrix* create_matrix(int, int);
-Matrix* create_zero_matrix(int, int);
-void print_matrix(Matrix *);
-void free_matrix(Matrix *);
-void fill_num_matrix(Matrix *);
-Matrix* transpose_matrix(Matrix *);
-Matrix* multiply_matrix(Matrix *, Matrix *);
-
-// TODO:
-// -- Scalar to matrix or matrix to scalar
-// 1. multiply_scalar_to_mat(mat, s)
-// 2. add_scalar_to_mat(mat, s)
-
-// -- Matrix to matrix
-// 1. multiply_mat_to_mat(mat1, mat2)
-// 2. add_mat_to_mat(mat1, mat2)
-
-// -- Broadcasting: row to matrix, or column to matrix
+matrix* mat_create(int, int);
+void mat_zeros(matrix*);
+void mat_print(matrix*);
+void mat_free(matrix*);
+void mat_fill_num(matrix*);
+matrix* mat_transpose(matrix*);
+matrix* mat_multiply(matrix*, matrix*);
+void mat_random(matrix*);
+matrix* mat_subtract(matrix*, matrix*);
+matrix* mat_init(double*, int, int);
+matrix* mat_power(matrix*);
+matrix* mat_sum(matrix*, int);
+matrix* mat_scale(matrix*, int, int);
+matrix* mat_multiply_ew(matrix*, matrix*);
+matrix* mat_divide_by(matrix*, double);
+matrix* mat_multiply_by(matrix*, double);
 
 #endif
