@@ -1,37 +1,32 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-/*
- * Dynamically allocate multi-dimensional arrays reference: http://c-faq.com/aryptr/dynmuldimary.html
- * However, we used struct against without the struct version: (double **values = malloc(...))
- * Because we want to store row and col sizes so we won't need to count it everytime by looping.
- * Meaning, no need to create a function that counts the row and sizes every time.
- * Edit: I'm not sure if you can count malloced array!
- */
+typedef struct {
+    double **values;
+    int rows;
+    int cols;
+} matrix;
 
-typedef struct
-{
-    double **values; // Row pointers
-    int rows;        // Row size
-    int cols;        // Column size
-}
-matrix;
+matrix* matcreate(int rows, int cols);
+void matzeros(matrix *mat);
+void matprint(matrix *mat);
+void matfree(matrix *mat);
+void matfill_n(matrix *mat);
+matrix* mattrans(matrix *mat);
+void matran(matrix *mat);
 
-matrix* mat_create(int, int);
-void mat_zeros(matrix*);
-void mat_print(matrix*);
-void mat_free(matrix*);
-void mat_fill_num(matrix*);
-matrix* mat_transpose(matrix*);
-matrix* mat_multiply(matrix*, matrix*);
-void mat_random(matrix*);
-matrix* mat_subtract(matrix*, matrix*);
-matrix* mat_init(double*, int, int);
-matrix* mat_power(matrix*);
-matrix* mat_sum(matrix*, int);
-matrix* mat_scale(matrix*, int, int);
-matrix* mat_multiply_ew(matrix*, matrix*);
-matrix* mat_divide_by(matrix*, double);
-matrix* mat_multiply_by(matrix*, double);
+matrix* matmul(matrix *mat1, matrix *mat2);
+matrix* matadd_ew(matrix *mat1, matrix *mat2);
+matrix* matsub_ew(matrix *mat1, matrix *mat2);
+matrix* matmul_ew(matrix *mat1, matrix *mat2);
+//matrix* matdiv_ew(matrix *mat1, matrix *mat2);
+matrix* matsum(matrix *mat, int axis);
+matrix* matexpand(matrix *mat, int axis, int amount);
+//matrix* matadd_by(matrix *mat, double amount);
+//matrix* matsub_by(matrix *mat, double amount);
+matrix* matmul_by(matrix *mat, double amount);
+matrix* matdiv_by(matrix *mat, double amount);
+matrix* matpow(matrix *mat);
+matrix* matsigmoid(matrix *mat);
 
 #endif
