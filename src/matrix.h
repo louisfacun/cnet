@@ -1,11 +1,13 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-typedef struct {
+typedef struct
+{
     double **values;
     int rows;
     int cols;
-} matrix;
+}
+matrix;
 
 matrix* matcreate(int rows, int cols);
 void matzeros(matrix *mat);

@@ -1,4 +1,4 @@
-# louisnet
+# cnet
 Neural network from scratch using C.
 
 ## Features

@@ -1,5 +1,6 @@
 #include "matrix.h"
 #include "activation.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -56,32 +57,29 @@ int main(void)
     matrix* b = matcreate(1, 1);
     b->values[0][0] = 0.5;
 
-    double alpha = 0.01;
-    
+    double alpha = 0.01; // learning rate
+    int m = 6; // training examples
+    int n = 3; // features
+
     for (int i = 0; i < 20000; i++)
     {
-        matrix *b_expanded = matexpand(b, 2, 6);
+        matrix *b_expanded = matexpand(b, 2, m);
         matrix *pred = matsigmoid(matadd_ew(matmul(mattrans(W), X), b_expanded));
-        matrix* error = matdiv_by(
-                            matsum(
-                                matpow(
-                                    matsub_ew(pred, y)
-                                ),
-                            1),
-                        6);
+        matrix* error = matdiv_by(matsum(matpow(matsub_ew(pred, y)), 1), m);
         
         if (i % 1000 == 0)
             printf("[%d] Error: %f\n", i, error->values[0][0]);
 
         // Gradient descent
         matrix* dz = matsub_ew(pred, y);
-        matrix* dw = matdiv_by(matmul(X, mattrans(dz)), 6);
-        matrix* db = matdiv_by(matsum(dz, 1), 6);
+        matrix* dw = matdiv_by(matmul(X, mattrans(dz)), m);
+        matrix* db = matdiv_by(matsum(dz, 1), m);
         W = matsub_ew(W, matmul_by(dw, alpha));
         b = matsub_ew(b, matmul_by(db, alpha));
     }
     
-    matrix *b_expanded = matexpand(b, 2, 6);
+    // Testing prediction on final weights and b
+    matrix *b_expanded = matexpand(b, 2, m);
     matrix* a = matsigmoid(matadd_ew(matmul(mattrans(W), X), b_expanded));
     matprint(a);
 

@@ -1,5 +1,6 @@
 #include "matrix.h"
 #include "activation.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,6 +51,7 @@ void matzeros(matrix *mat)
         }
     }
 }
+
 
 void matprint(matrix *mat)
 {
@@ -143,6 +145,7 @@ matrix* mattrans(matrix *old_mat)
     return new_mat;
 }
 
+
 matrix* matmul(matrix *mat1, matrix *mat2)
 {
     /* Get the "matrix product" of two matrices.
@@ -181,6 +184,7 @@ matrix* matmul(matrix *mat1, matrix *mat2)
     return mat3;
 }
 
+
 void matran(matrix *mat)
 {
     /* Put randomized values 0-1 on a given matrix pointer.
@@ -198,6 +202,7 @@ void matran(matrix *mat)
         } 
     }
 }
+
 
 matrix* matsub_ew(matrix *mat1, matrix *mat2)
 {
@@ -254,6 +259,7 @@ matrix* matpow(matrix *mat)
     return mat2;
 }
 
+
 matrix* matsum(matrix *mat, int axis)
 {
     /* Sum a matrix by axis.
@@ -303,6 +309,7 @@ matrix* matsum(matrix *mat, int axis)
     return mat;
 }
 
+
 matrix* matexpand(matrix* mat, int axis, int amount)
 {
     /* Expand a matrix by axis.
@@ -350,6 +357,7 @@ matrix* matexpand(matrix* mat, int axis, int amount)
     }
     return mat;
 }
+
 
 matrix* matmul_ew(matrix *mat1, matrix *mat2)
 {
@@ -484,3 +492,37 @@ matrix* matadd_ew(matrix *mat1, matrix *mat2)
     }
     return mat3;
 }
+
+/*
+    TODO:
+    1. Simplify element-wise matrix operations:
+
+    matops_ew(matrix1, matrix2, operation)
+    {
+        switch (operation)
+            case 1:
+                do addition
+            case 2:
+                do subtraction
+            case 3:
+                do multiplication
+            case 4:
+                do division
+    }
+
+    Then, in main code, call matops_ew().
+    But the additional parameter makes it complicated.
+
+    OR
+
+    Call matops_ew() on each function:
+    
+    E.g. matadd_ew()
+         {
+            matops_ew(m1, m2, ops)
+         }
+
+    So, in main code, we can call matadd_ew(), matsub_ew etc..
+    Also do it on matrix to scalar operations.
+    
+*/

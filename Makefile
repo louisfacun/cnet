@@ -1,12 +1,12 @@
+EXECUTABLE = cnet
 VPATH = ./src
-EXECUTABLE = louisnet
 OBJECTDIR = ./obj/
 
 CC = gcc
 CFLAGS = -Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -fPIC
 LDFLAGS = -lm
 
-OBJECT = activation.o matrix.o louisnet.o
+OBJECT = activation.o matrix.o cnet.o
 OBJECTS = $(addprefix $(OBJECTDIR), $(OBJECT))
 HEADERS = $(wildcard *.h)
 
