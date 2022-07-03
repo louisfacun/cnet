@@ -13,3 +13,7 @@ Neural network from scratch using C.
 
 ## Limitations
 - No matrix calculations optimization (e.g. GPU and CPU)
+
+## References
+### Deep Learning Specialization
+- [x] Neural Network and Deep Learning
