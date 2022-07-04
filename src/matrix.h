@@ -1,3 +1,8 @@
+/*!
+ * Author: Louis Philippe B. Facun
+ * Email: louis@louisfacun.com
+ */
+
 #ifndef MATRIX_H
 #define MATRIX_H
 
@@ -31,5 +36,7 @@ matrix* matdiv_by(matrix *mat, double amount);
 matrix* matpow(matrix *mat);
 matrix* matsigmoid(matrix *mat);
 double matsqz(matrix *mat);
+matrix* matcpy(matrix *mat);
+matrix* mataddvec_by(matrix *mat1, matrix *mat2);
 
 #endif

@@ -1,3 +1,8 @@
+/*!
+ * Author: Louis Philippe B. Facun
+ * Email: louis@louisfacun.com
+ */
+
 #include "activation.h"
 #include <math.h>
 

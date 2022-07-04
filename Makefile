@@ -1,3 +1,6 @@
+# Author: Louis Philippe B. Facun
+# Email: louis@louisfacun.com
+
 EXECUTABLE = cnet
 VPATH = ./src
 OBJECTDIR = ./obj/

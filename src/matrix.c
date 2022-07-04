@@ -316,7 +316,7 @@ matrix* matsum(matrix *mat, int axis)
 }
 
 
-matrix* matexpand(matrix* mat, int axis, int amount)
+matrix* matexpand(matrix *mat, int axis, int amount)
 {
     /* Expand a matrix by axis.
     
@@ -400,7 +400,7 @@ matrix* matmul_ew(matrix *mat1, matrix *mat2)
 }
 
 
-matrix* matdiv_by(matrix* mat, double amount)
+matrix* matdiv_by(matrix *mat, double amount)
 {
     /* Matrix to scalar division.
     
@@ -423,7 +423,7 @@ matrix* matdiv_by(matrix* mat, double amount)
 }
 
 
-matrix* matmul_by(matrix* mat, double amount)
+matrix* matmul_by(matrix *mat, double amount)
 {
     /* Matrix to scalar multiplication.
     
@@ -446,7 +446,7 @@ matrix* matmul_by(matrix* mat, double amount)
 }
 
 
-matrix* matsigmoid(matrix* m)
+matrix* matsigmoid(matrix *m)
 {
     /* Apply element-wise sigmoid using sigmoid() from activation.h
     
@@ -500,7 +500,7 @@ matrix* matadd_ew(matrix *mat1, matrix *mat2)
 }
 
 
-double mat_squeze(matrix *mat)
+double matsqz(matrix *mat)
 {
     /* Get (1, 1) matrix value to scalar double value.
     
@@ -512,6 +512,66 @@ double mat_squeze(matrix *mat)
         exit(1);
     }
     return mat->values[0][0];
+}
+
+matrix* matcpy(matrix *mat)
+{
+    matrix* mat2 = matcreate(mat->rows, mat->cols);
+    for (int i = 0; i < mat->rows; i++)
+    {
+        for (int j = 0; j < mat->cols; j++)
+        {
+            mat2->values[i][j] = mat->values[i][j];
+        }
+    }
+    return mat2;
+}
+
+// Mat by vec addition
+matrix* mataddvec_by(matrix *mat1, matrix *mat2)
+{
+    matrix* mat3 = matcreate(mat1->rows, mat1->cols);
+    
+    // Size checking
+
+    // None of both rows and cols matches
+    if (mat1->rows != mat2->rows && mat1->cols != mat2->cols)
+    {
+        printf("Error: cannot broadcast, none of the sizes match: (%d, %d) != (%d, %d).\n", mat1->rows, mat1->cols, mat2->rows, mat2->cols);
+        exit(1);
+    }
+    // Sanity check
+    else if (mat1->rows == mat2->rows && mat1->cols == mat2->cols)
+    {
+        printf("Error: do not use this function, both sizes match: (%d, %d) == (%d, %d).\n", mat1->rows, mat1->cols, mat2->rows, mat2->cols);
+        exit(1);
+    }
+    // Row size matches, broadcast horizontally
+    else if (mat1->rows == mat2->rows && mat1->cols != mat2->cols)
+    {
+        for (int j = 0; j < mat1->cols; j++)
+        {
+            for (int i = 0; i < mat1->rows; i++)
+            {
+                mat3->values[i][j] = mat1->values[i][j] + mat2->values[i][0];
+            }
+        }
+        return mat3;
+    }
+    
+    // Col size matches, broadcast vertically
+    else if (mat1->rows != mat2->rows && mat1->cols == mat2->cols)
+    {
+        for (int i = 0; i < mat1->rows; i++)
+        {
+            for (int j = 0; j < mat1->cols; j++)
+            {
+                mat3->values[i][j] = mat1->values[i][j] + mat2->values[0][j];
+            }
+        }
+        return mat3;
+    }
+    return mat3;
 }
 
 /*

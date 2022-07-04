@@ -1,3 +1,8 @@
+/*!
+ * Author: Louis Philippe B. Facun
+ * Email: louis@louisfacun.com
+ */
+
 #ifndef INPUT_H
 #define INPUT_H
 
