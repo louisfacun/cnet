@@ -1,5 +1,10 @@
-#include "matrix.h"
+/*!
+ * Author: Louis Philippe B. Facun
+ * Email: louis@louisfacun.com
+ */
+
 #include "activation.h"
+#include "matrix.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -14,17 +19,18 @@ matrix* matcreate(int rows, int cols)
         cols: (int) Size of columns.
 
     Returns:
-        mat: (pointer) Allocated struct pointer.
+        mat: (struct*)
     */
 
-    // Create a struct Matrix pointer
+    // Allocate a struct Matrix pointer
     matrix *mat = malloc(sizeof(matrix));
 
-    // Create "row" pointers
+    // Allocate "row" pointers
     mat->values = malloc(rows * sizeof(double*));
     
-    // Create "columns" per "row" pointer
-    for (int i=0; i < rows; i++) {
+    // Allocate "columns" pointer per "row" pointer
+    for (int i = 0; i < rows; i++)
+    {
         mat->values[i] = malloc(cols * sizeof(double));
     }
 
@@ -41,7 +47,7 @@ void matzeros(matrix *mat)
     /* Put zeros to all matrix values.
          
     Parameters:
-        mat: (pointer)
+        mat: (struct*)
     */
     for (int i = 0; i < mat->rows; i++)
     {
@@ -55,10 +61,10 @@ void matzeros(matrix *mat)
 
 void matprint(matrix *mat)
 {
-    /* Display matrix values.
+    /* Display matrix values and size (rows, cols).
          
     Parameters:
-        mat: (pointer) Typedef struct matrix pointer.
+        mat: (struct*)
 
     Example:
         [[0.000 0.000 0.000]
@@ -85,7 +91,7 @@ void matfree(matrix *mat)
     /* Free allocated matrix row and column pointers.
          
     Parameters:
-        mat: (pointer)
+        mat: (struct*)
     */
     for (int i = 0; i < mat->rows; i++)
     {
@@ -105,7 +111,7 @@ void matfill_n(matrix *mat)
     /* Fill the matrix with 1 to row*col values.
          
     Parameters:
-        mat: (pointer)
+        mat: (struct*)
     */
     int z = 1;
     for (int i = 0; i < mat->rows; i++)
@@ -124,10 +130,10 @@ matrix* mattrans(matrix *old_mat)
     /* Transpose a matrix.
          
     Parameters:
-        mat: (pointer) Pointer of the matrix to be transposed.
+        mat: (struct*) Pointer of the matrix to be transposed.
 
     Returns:
-        new_mat: (pointer) Transposed matrix on a new pointer.
+        new_mat: (struct*) Transposed matrix on a new pointer.
     */
 
     // Cannot directly alter the previous matrix (not sure) 
@@ -151,11 +157,11 @@ matrix* matmul(matrix *mat1, matrix *mat2)
     /* Get the "matrix product" of two matrices.
          
     Parameters:
-        mat1: (pointer)
-        mat2: (pointer)
+        mat1: (struct*)
+        mat2: (struct*)
 
     Returns:
-        mat3: (pointer)
+        mat3: (struct*)
     */
 
     // Check if k are equal (m1[i][k] * m2[k][j] = m3[i][j])
@@ -190,7 +196,7 @@ void matran(matrix *mat)
     /* Put randomized values 0-1 on a given matrix pointer.
          
     Parameters:
-        mat: (pointer)
+        mat: (struct*)
     */
 
     //srand(time(0));
@@ -209,11 +215,11 @@ matrix* matsub_ew(matrix *mat1, matrix *mat2)
     /* Element wise subtraction.
          
     Parameters:
-        mat1: (pointer)
-        mat2: (pointer)
+        mat1: (struct*)
+        mat2: (struct*)
 
     Returns:
-        mat3: (pointer)
+        mat3: (struct*)
     */
 
     // Since this is an element wise subtraction,
@@ -243,10 +249,10 @@ matrix* matpow(matrix *mat)
     /* Element wise power (2).
          
     Parameters:
-        mat: (pointer)
+        mat: (struct*)
 
     Returns:
-        mat2: (pointer)
+        mat2: (struct*)
     */
     matrix *mat2 = matcreate(mat->rows, mat->cols);
     for (int i = 0; i < mat->rows; i++)
@@ -265,11 +271,11 @@ matrix* matsum(matrix *mat, int axis)
     /* Sum a matrix by axis.
     
     Parameters:
-        mat: (pointer)
+        mat: (struct*)
         axis: (integer)
 
     Returns:
-        sum: (pointer)
+        sum: (struct*)
     
     Notes:
         axis = 1(row), 2(col), 3=all
@@ -315,12 +321,12 @@ matrix* matexpand(matrix* mat, int axis, int amount)
     /* Expand a matrix by axis.
     
     Parameters:
-        mat: (pointer)
+        mat: (struct*)
         axis: (integer)
         amount: (integer) Amount to expand.
 
     Returns:
-        scaled: (pointer)
+        scaled: (struct*)
     
     Notes:
         axis = 1(row), 2(col)
@@ -364,11 +370,11 @@ matrix* matmul_ew(matrix *mat1, matrix *mat2)
     /* Element-wise matrix multiplication.
     
     Parameters:
-        mat1: (pointer)
-        mat2: (pointer)
+        mat1: (struct*)
+        mat2: (struct*)
 
     Returns:
-        mat3: (pointer)
+        mat3: (struct*)
     */
 
     // Since this is an element wise ,
@@ -399,11 +405,11 @@ matrix* matdiv_by(matrix* mat, double amount)
     /* Matrix to scalar division.
     
     Parameters:
-        mat: (pointer)
+        mat: (struct*)
         amount: (double) Divide by scalar value.
 
     Returns:
-        mat2: (pointer)
+        mat2: (struct*)
     */
     matrix* mat2 = matcreate(mat->rows, mat->cols);
     for (int i = 0; i < mat->rows; i++)
@@ -422,11 +428,11 @@ matrix* matmul_by(matrix* mat, double amount)
     /* Matrix to scalar multiplication.
     
     Parameters:
-        mat: (pointer)
+        mat: (struct*)
         amount: (double) Multiply by scalar value.
 
     Returns:
-        prod: (pointer)
+        prod: (struct*)
     */
     matrix* prod = matcreate(mat->rows, mat->cols);
     for (int i = 0; i < mat->rows; i++)
@@ -445,10 +451,10 @@ matrix* matsigmoid(matrix* m)
     /* Apply element-wise sigmoid using sigmoid() from activation.h
     
     Parameters:
-        m: (pointer)
+        m: (struct*)
 
     Returns:
-        m2: (pointer)
+        m2: (struct*)
     */
     matrix* m2 = matcreate(m->rows, m->cols);
     for (int i=0; i<m->rows; i++){
@@ -465,11 +471,11 @@ matrix* matadd_ew(matrix *mat1, matrix *mat2)
     /* Element-wise matrix addition.
     
     Parameters:
-        mat1: (pointer)
-        mat2: (pointer)
+        mat1: (struct*)
+        mat2: (struct*)
 
     Returns:
-        mat3: (pointer)
+        mat3: (struct*)
     */
 
     // Since this is an element wise ,
@@ -491,6 +497,21 @@ matrix* matadd_ew(matrix *mat1, matrix *mat2)
         }
     }
     return mat3;
+}
+
+
+double mat_squeze(matrix *mat)
+{
+    /* Get (1, 1) matrix value to scalar double value.
+    
+    */
+    // Check if it's actually a 1 by 1 matrix
+    if (mat->rows != 1 || mat->cols != 1)
+    {
+        printf("Error: cannot use matsqz() on size (%d, %d).\n", mat->rows, mat->cols);
+        exit(1);
+    }
+    return mat->values[0][0];
 }
 
 /*

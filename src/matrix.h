@@ -30,5 +30,6 @@ matrix* matmul_by(matrix *mat, double amount);
 matrix* matdiv_by(matrix *mat, double amount);
 matrix* matpow(matrix *mat);
 matrix* matsigmoid(matrix *mat);
+double matsqz(matrix *mat);
 
 #endif
