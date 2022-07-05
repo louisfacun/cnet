@@ -12,71 +12,54 @@
 
 matrix* matcreate(int rows, int cols)
 {
-    /* Dynamically allocate a 2d array as a matrix struct.
-    
-    Parameters:
-        rows: (int) Size of rows.
-        cols: (int) Size of columns.
-
-    Returns:
-        mat: (struct*)
-    */
-
-    // Allocate a struct Matrix pointer
-    matrix *mat = malloc(sizeof(matrix));
-
-    // Allocate "row" pointers
-    mat->values = malloc(rows * sizeof(double*));
-    
-    // Allocate "columns" pointer per "row" pointer
-    for (int i = 0; i < rows; i++)
-    {
-        mat->values[i] = malloc(cols * sizeof(double));
-    }
-
-    // Don't forget to store the size of row and col 
-    mat->rows = rows; 
-    mat->cols = cols;
-
-    return mat;
+    matrix *res = malloc(sizeof(matrix));
+    res->values = malloc(rows * sizeof(double*));
+    for (int i = 0; i < rows; i++) {
+        res->values[i] = malloc(cols * sizeof(double));
+    } 
+    res->rows = rows; 
+    res->cols = cols;
+    return res;
 }
 
-
+// put zeros to an existing matrix
 void matzeros(matrix *mat)
 {   
-    /* Put zeros to all matrix values.
-         
-    Parameters:
-        mat: (struct*)
-    */
-    for (int i = 0; i < mat->rows; i++)
-    {
-        for (int j = 0; j < mat->cols; j++)
-        {
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
             mat->values[i][j] = 0.0;
         }
     }
 }
 
+// put 1 to n values
+void matfill_n(matrix *mat)
+{
+    int z = 1;
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
+            mat->values[i][j] = z;
+            z++;
+        }
+    }
+}
+
+void matran(matrix *mat)
+{
+    //srand(time(0));
+    for(int i = 0; i < mat->rows; i++) {
+        for(int j = 0; j < mat->cols; j++) {
+            mat->values[i][j] = (double)rand() / (double)RAND_MAX;
+        } 
+    }
+}
 
 void matprint(matrix *mat)
 {
-    /* Display matrix values and size (rows, cols).
-         
-    Parameters:
-        mat: (struct*)
-
-    Example:
-        [[0.000 0.000 0.000]
-         [0.000 0.000 0.000]]
-         Size: (2, 3)
-    */
     printf("[");
-    for (int i = 0; i < mat->rows; i++)
-    {
+    for (int i = 0; i < mat->rows; i++) {
         printf("%s", i == 0 ? "[" : " [");
-        for (int j = 0; j < mat->cols; j++)
-        {
+        for (int j = 0; j < mat->cols; j++) {
             printf("%10.8f%s", mat->values[i][j], j == (mat->cols-1) ? "" : " ");
         }
         printf("%s", i == (mat->rows-1) ? "]" : "]\n");
@@ -85,429 +68,183 @@ void matprint(matrix *mat)
     printf(" Size: (%d, %d)\n\n", mat->rows, mat->cols);
 }
 
-
 void matfree(matrix *mat)
 {
-    /* Free allocated matrix row and column pointers.
-         
-    Parameters:
-        mat: (struct*)
-    */
-    for (int i = 0; i < mat->rows; i++)
-    {
-        // Free column pointers per row
+    for (int i = 0; i < mat->rows; i++) {
         free(mat->values[i]);
     }
-    // Free row pointers
     free(mat->values);
-
-    // Free matrix struct pointer
     free(mat);
 }
 
-
-void matfill_n(matrix *mat)
-{
-    /* Fill the matrix with 1 to row*col values.
-         
-    Parameters:
-        mat: (struct*)
-    */
-    int z = 1;
-    for (int i = 0; i < mat->rows; i++)
-    {
-        for (int j = 0; j < mat->cols; j++)
-        {
-            mat->values[i][j] = z;
-            z++;
-        }
-    }
-}
-
-
-matrix* mattrans(matrix *old_mat)
+matrix* mattrans(matrix *mat)
 {   
-    /* Transpose a matrix.
-         
-    Parameters:
-        mat: (struct*) Pointer of the matrix to be transposed.
-
-    Returns:
-        new_mat: (struct*) Transposed matrix on a new pointer.
-    */
-
-    // Cannot directly alter the previous matrix (not sure) 
-    // so we need to create a new matrix struct with a reversed size: (col, row)
-    matrix *new_mat = matcreate(old_mat->cols, old_mat->rows);
-    
-    // Use formula new[j][i] := old[i][j]
-    for (int i = 0; i < old_mat->rows; i++)
-    {
-        for (int j = 0; j < old_mat->cols; j++)
-        {
-            new_mat->values[j][i] = old_mat->values[i][j];
+    matrix *res = matcreate(mat->cols, mat->rows);
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
+            res->values[j][i] = mat->values[i][j];
         }
     }
-    return new_mat;
+    return res;
 }
 
-
+// special matrix product
 matrix* matmul(matrix *mat1, matrix *mat2)
 {
-    /* Get the "matrix product" of two matrices.
-         
-    Parameters:
-        mat1: (struct*)
-        mat2: (struct*)
-
-    Returns:
-        mat3: (struct*)
-    */
-
-    // Check if k are equal (m1[i][k] * m2[k][j] = m3[i][j])
-    if (mat1->cols != mat2->rows)
-    {
-        printf("Matrix k size are not equal!\n");
+    if (mat1->cols != mat2->rows) {
+        printf("Error: matrix k size are not equal: (%d, %d) != (%d, %d)\n", mat1->rows, mat1->cols, mat2->rows, mat2->cols);
         exit(1);
     }
-
-    // Since m1[i][k] * m2[k][j] = m3[i][j]
-    // Create a matrix with size of (i,j)
-    matrix *mat3 = matcreate(mat1->rows, mat2->cols);
-
-    for (int i = 0; i < mat1->rows; i++)
-    {
-        for (int j = 0; j < mat2->cols; j++)
-        {
+    matrix *res = matcreate(mat1->rows, mat2->cols);
+    for (int i = 0; i < mat1->rows; i++) {
+        for (int j = 0; j < mat2->cols; j++) {
             double sum = 0;
-            for (int k = 0; k < mat2->rows; k++)
-            {
+            for (int k = 0; k < mat2->rows; k++){
                 sum += mat1->values[i][k] * mat2->values[k][j];
             }
-            mat3->values[i][j] = sum;
+            res->values[i][j] = sum;
         }
     }
-    return mat3;
+    return res;
 }
 
-
-void matran(matrix *mat)
+matrix* matpow(matrix *mat, int val)
 {
-    /* Put randomized values 0-1 on a given matrix pointer.
-         
-    Parameters:
-        mat: (struct*)
-    */
-
-    //srand(time(0));
-    for(int i = 0; i < mat->rows; i++)
-    {
-        for(int j = 0; j < mat->cols; j++)
-        {
-            mat->values[i][j] = (double)rand() / (double)RAND_MAX;
-        } 
-    }
-}
-
-
-matrix* matsub_ew(matrix *mat1, matrix *mat2)
-{
-    /* Element wise subtraction.
-         
-    Parameters:
-        mat1: (struct*)
-        mat2: (struct*)
-
-    Returns:
-        mat3: (struct*)
-    */
-
-    // Since this is an element wise subtraction,
-    // Check if both rows and cols are equal
-    if (mat1->rows != mat2->rows && mat1->cols != mat2->cols)
-    {
-        printf("Matrix 1 and 2 cols and/or rows are not equal!\n");
-        printf("Matrix 1 size: (%d, %d)\n", mat1->rows, mat1->cols);
-        printf("Matrix 2 size: (%d, %d)\n", mat2->rows, mat2->cols);
-        exit(1);
-    }
-
-    matrix *mat3 = matcreate(mat1->rows, mat1->cols);
-    for (int i = 0; i < mat1->rows; i++)
-    {
-        for (int j = 0; j < mat1->cols; j++)
-        {
-            mat3->values[i][j] = mat1->values[i][j] - mat2->values[i][j];
+    matrix *res = matcreate(mat->rows, mat->cols);
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
+            res->values[i][j] = pow(mat->values[i][j], val);
         }
     }
-    return mat3;
+    return res;
 }
 
-
-matrix* matpow(matrix *mat)
-{    
-    /* Element wise power (2).
-         
-    Parameters:
-        mat: (struct*)
-
-    Returns:
-        mat2: (struct*)
-    */
-    matrix *mat2 = matcreate(mat->rows, mat->cols);
-    for (int i = 0; i < mat->rows; i++)
-    {
-        for (int j = 0; j < mat->cols; j++)
-        {
-            mat2->values[i][j] = pow(mat->values[i][j], 2);
-        }
-    }
-    return mat2;
-}
-
-
+// sum by row(0) or col(1)
 matrix* matsum(matrix *mat, int axis)
 {
-    /* Sum a matrix by axis.
-    
-    Parameters:
-        mat: (struct*)
-        axis: (integer)
-
-    Returns:
-        sum: (struct*)
-    
-    Notes:
-        axis = 1(row), 2(col), 3=all
-    */
-    if (axis == 1)
-    {
-        matrix *sum = matcreate(mat->rows, 1);
-        for (int i = 0; i < mat->rows; i++)
-        {
+    matrix *res = NULL;
+    if (axis == 0) {
+        res = matcreate(mat->rows, 1);
+        for (int i = 0; i < mat->rows; i++) {
             double row_sum = 0;
-            for (int j = 0; j < mat->cols; j++)
-            {
+            for (int j = 0; j < mat->cols; j++) {
                 row_sum += mat->values[i][j];
             }
-            sum->values[i][0] += row_sum;
+            res->values[i][0] += row_sum;
         }
-        return sum;
-    }
-    else if (axis == 2)
-    {
-        matrix *sum = matcreate(1, mat->cols);
-        for (int j = 0; j < mat->cols; j++)
-        {
+        return res;
+    } else if (axis == 1) {
+        res = matcreate(1, mat->cols);
+        for (int j = 0; j < mat->cols; j++) {
             double col_sum = 0;
-            for (int i = 0; i < mat->rows; i++)
-            {
+            for (int i = 0; i < mat->rows; i++) {
                 col_sum += mat->values[i][j];
             }
-            sum->values[0][j] += col_sum;
+            res->values[0][j] += col_sum;
         }
-        return sum;
-    }
-    else
-    {
+        return res;
+    } else {
         // TODO: sum either row->col or col->row
     }
-    return mat;
+    return res;
 }
 
-
-matrix* matexpand(matrix *mat, int axis, int amount)
-{
-    /* Expand a matrix by axis.
-    
-    Parameters:
-        mat: (struct*)
-        axis: (integer)
-        amount: (integer) Amount to expand.
-
-    Returns:
-        scaled: (struct*)
-    
-    Notes:
-        axis = 1(row), 2(col)
-    */   
-    if (axis == 1)
-    {
-        // TODO: check if row size > 1, otherwise we should not allow scaling row w/ size more than 2
-        matrix* scaled = matcreate(amount, mat->cols);
-        
-        // Copy the row to "amount" rows
-        for (int i = 0; i < amount; i++)
-        {
-            for (int j = 0; j < mat->cols; j++)
-            {
-                scaled->values[i][j] = mat->values[0][j]; // 0 for first row only
-            }
-        }
-        return scaled;
-    } 
-    else if (axis == 2)
-    {
-        // TODO: same row checking
-        matrix* scaled = matcreate(mat->rows, amount);
-        
-        // Copy the cols to "amount" cols
-        for (int j = 0; j < amount; j++)
-        {
-            for (int i = 0; i < mat->rows; i++)
-            {
-                scaled->values[i][j] = mat->values[i][0]; // 0 for first col only
-            }
-        }
-        return scaled;
-    }
-    return mat;
-}
-
-
+// matrix to matrix element-wise multiplication
 matrix* matmul_ew(matrix *mat1, matrix *mat2)
 {
-    /* Element-wise matrix multiplication.
-    
-    Parameters:
-        mat1: (struct*)
-        mat2: (struct*)
-
-    Returns:
-        mat3: (struct*)
-    */
-
-    // Since this is an element wise ,
-    // Check if both rows and cols are equal
-    if (mat1->rows != mat2->rows && mat1->cols != mat2->cols)
-    {
-        printf("Matrix 1 and 2 cols and/or rows are not equal!\n");
-        printf("Matrix 1 size: (%d, %d)\n", mat1->rows, mat1->cols);
-        printf("Matrix 2 size: (%d, %d)\n", mat2->rows, mat2->cols);
+    if (!matisequal(mat1, mat2)) {
+        errsize(mat1->rows, mat1->cols, mat2->rows, mat2->cols);
         exit(1);
     }
-
-    matrix *mat3 = matcreate(mat1->rows, mat1->cols);
-    
-    for (int i = 0; i < mat1->rows; i++)
-    {
-        for (int j = 0; j < mat1->cols; j++)
-        {
-            mat3->values[i][j] = mat1->values[i][j] * mat2->values[i][j];
+    matrix *res = matcreate(mat1->rows, mat1->cols);
+    for (int i = 0; i < mat1->rows; i++) {
+        for (int j = 0; j < mat1->cols; j++) {
+            res->values[i][j] = mat1->values[i][j] * mat2->values[i][j];
         }
     }
-    return mat3;
+    return res;
 }
 
-
-matrix* matdiv_by(matrix *mat, double amount)
+// matrix to scalar division
+matrix* matdiv_by(matrix *mat, double val)
 {
-    /* Matrix to scalar division.
-    
-    Parameters:
-        mat: (struct*)
-        amount: (double) Divide by scalar value.
-
-    Returns:
-        mat2: (struct*)
-    */
-    matrix* mat2 = matcreate(mat->rows, mat->cols);
-    for (int i = 0; i < mat->rows; i++)
-    {
-        for (int j = 0; j < mat->cols; j++)
-        {
-            mat2->values[i][j] = mat->values[i][j] / amount;
+    matrix* res = matcreate(mat->rows, mat->cols);
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
+            res->values[i][j] = mat->values[i][j] / val;
         }
     }
-    return mat2;
+    return res;
 }
 
-
-matrix* matmul_by(matrix *mat, double amount)
+// matrix to scalar multiplication
+matrix* matmul_by(matrix *mat, double val)
 {
-    /* Matrix to scalar multiplication.
-    
-    Parameters:
-        mat: (struct*)
-        amount: (double) Multiply by scalar value.
-
-    Returns:
-        prod: (struct*)
-    */
-    matrix* prod = matcreate(mat->rows, mat->cols);
-    for (int i = 0; i < mat->rows; i++)
-    {
-        for (int j = 0; j < mat->cols; j++)
-        {
-            prod->values[i][j] = mat->values[i][j] * amount;
+    matrix* res = matcreate(mat->rows, mat->cols);
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
+            res->values[i][j] = mat->values[i][j] * val;
         }
     }
-    return prod;
+    return res;
 }
 
-
-matrix* matsigmoid(matrix *m)
+// apply element-wise sigmoid
+matrix* matsigmoid(matrix *mat)
 {
-    /* Apply element-wise sigmoid using sigmoid() from activation.h
-    
-    Parameters:
-        m: (struct*)
-
-    Returns:
-        m2: (struct*)
-    */
-    matrix* m2 = matcreate(m->rows, m->cols);
-    for (int i=0; i<m->rows; i++){
-        for (int j=0; j<m->cols; j++){
-            m2->values[i][j] = sigmoid(m->values[i][j]);
+    matrix* res = matcreate(mat->rows, mat->cols);
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
+            res->values[i][j] = sigmoid(mat->values[i][j]);
         }
     }
-    return m2;
+    return res;
 }
 
+// apply element-wise relu
+matrix* matrelu(matrix *mat)
+{
+    matrix* res = matcreate(mat->rows, mat->cols);
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
+            res->values[i][j] = relu(mat->values[i][j]);
+        }
+    }
+    return res;
+}
 
+// apply element-wise logarithm
+matrix* matlog(matrix *mat)
+{
+    matrix* res = matcreate(mat->rows, mat->cols);
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
+            res->values[i][j] = log(mat->values[i][j]);
+        }
+    }
+    return res;
+}
+
+// matrix to matrix element-wise addition
 matrix* matadd_ew(matrix *mat1, matrix *mat2)
 {
-    /* Element-wise matrix addition.
-    
-    Parameters:
-        mat1: (struct*)
-        mat2: (struct*)
-
-    Returns:
-        mat3: (struct*)
-    */
-
-    // Since this is an element wise ,
-    // Check if both rows and cols are equal
-    if (mat1->rows != mat2->rows && mat1->cols != mat2->cols)
-    {
-        printf("Matrix 1 and 2 cols and/or rows are not equal!\n");
-        printf("Matrix 1 size: (%d, %d)\n", mat1->rows, mat1->cols);
-        printf("Matrix 2 size: (%d, %d)\n", mat2->rows, mat2->cols);
+    if (!matisequal(mat1, mat2)) {
+        errsize(mat1->rows, mat1->cols, mat2->rows, mat2->cols);
         exit(1);
     }
-
-    matrix *mat3 = matcreate(mat1->rows, mat1->cols);
-    for (int i = 0; i < mat1->rows; i++)
-    {
-        for (int j = 0; j < mat1->cols; j++)
-        {
-            mat3->values[i][j] = mat1->values[i][j] + mat2->values[i][j];
+    matrix *res = matcreate(mat1->rows, mat1->cols);
+    for (int i = 0; i < mat1->rows; i++) {
+        for (int j = 0; j < mat1->cols; j++) {
+            res->values[i][j] = mat1->values[i][j] + mat2->values[i][j];
         }
     }
-    return mat3;
+    return res;
 }
 
-
+// squeeze matrix into double
 double matsqz(matrix *mat)
 {
-    /* Get (1, 1) matrix value to scalar double value.
-    
-    */
-    // Check if it's actually a 1 by 1 matrix
-    if (mat->rows != 1 || mat->cols != 1)
-    {
+    if (mat->rows != 1 || mat->cols != 1) {
         printf("Error: cannot use matsqz() on size (%d, %d).\n", mat->rows, mat->cols);
         exit(1);
     }
@@ -516,94 +253,121 @@ double matsqz(matrix *mat)
 
 matrix* matcpy(matrix *mat)
 {
-    matrix* mat2 = matcreate(mat->rows, mat->cols);
-    for (int i = 0; i < mat->rows; i++)
-    {
-        for (int j = 0; j < mat->cols; j++)
-        {
-            mat2->values[i][j] = mat->values[i][j];
+    matrix* res = matcreate(mat->rows, mat->cols);
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
+            res->values[i][j] = mat->values[i][j];
         }
     }
-    return mat2;
+    return res;
 }
 
-// Mat by vec addition
+// matrix to vector addition
 matrix* mataddvec_by(matrix *mat1, matrix *mat2)
 {
-    matrix* mat3 = matcreate(mat1->rows, mat1->cols);
-    
-    // Size checking
-
-    // None of both rows and cols matches
-    if (mat1->rows != mat2->rows && mat1->cols != mat2->cols)
-    {
+    matrix* res = matcreate(mat1->rows, mat1->cols);
+    if (!matisequal(mat1, mat2)) {
         printf("Error: cannot broadcast, none of the sizes match: (%d, %d) != (%d, %d).\n", mat1->rows, mat1->cols, mat2->rows, mat2->cols);
         exit(1);
-    }
-    // Sanity check
-    else if (mat1->rows == mat2->rows && mat1->cols == mat2->cols)
-    {
+    } else if (matisequal(mat1, mat2)) {
         printf("Error: do not use this function, both sizes match: (%d, %d) == (%d, %d).\n", mat1->rows, mat1->cols, mat2->rows, mat2->cols);
         exit(1);
     }
-    // Row size matches, broadcast horizontally
-    else if (mat1->rows == mat2->rows && mat1->cols != mat2->cols)
-    {
-        for (int j = 0; j < mat1->cols; j++)
-        {
-            for (int i = 0; i < mat1->rows; i++)
-            {
-                mat3->values[i][j] = mat1->values[i][j] + mat2->values[i][0];
-            }
-        }
-        return mat3;
-    }
-    
-    // Col size matches, broadcast vertically
+    // column size matches, broadcast by row
     else if (mat1->rows != mat2->rows && mat1->cols == mat2->cols)
     {
-        for (int i = 0; i < mat1->rows; i++)
-        {
-            for (int j = 0; j < mat1->cols; j++)
-            {
-                mat3->values[i][j] = mat1->values[i][j] + mat2->values[0][j];
-            }
-        }
-        return mat3;
+        matrix *matvec = matexpand(mat2, 0, mat1->rows);
+        res = matadd_ew(mat1, matvec);
+        return res;
     }
-    return mat3;
+    // row size matches, broadcast by column
+    else if (mat1->rows == mat2->rows && mat1->cols != mat2->cols)
+    {
+        matrix *matvec = matexpand(mat2, 1, mat1->cols);
+        res = matadd_ew(mat1, matvec);
+        return res;
+    }
+    return res;
 }
 
-/*
-    TODO:
-    1. Simplify element-wise matrix operations:
+// check if matrix 1 and 2 row and size are equal
+int matisequal(matrix *mat1, matrix *mat2)
+{
+   return ((mat1->rows == mat2->rows && mat1->cols == mat2->cols) ? 1 : 0);
+}
 
-    matops_ew(matrix1, matrix2, operation)
-    {
-        switch (operation)
-            case 1:
-                do addition
-            case 2:
-                do subtraction
-            case 3:
-                do multiplication
-            case 4:
-                do division
+void errsize(int m1r, int m1c, int m2r, int m2c)
+{
+    printf("Error: unequal size: (%d, %d) != (%d, %d)\n", m1r, m1c, m2r, m2c);
+}
+
+// matrix to matrix element-wise subtraction
+matrix* matsub_ew(matrix *mat1, matrix *mat2)
+{
+    if (!matisequal(mat1, mat2)) {
+        errsize(mat1->rows, mat1->cols, mat2->rows, mat2->cols);
+        exit(1);
     }
+    matrix *res = matcreate(mat1->rows, mat1->cols);
+    for (int i = 0; i < mat1->rows; i++) {
+        for (int j = 0; j < mat1->cols; j++) {
+            res->values[i][j] = mat1->values[i][j] - mat2->values[i][j];
+        }
+    }
+    return res;
+}
 
-    Then, in main code, call matops_ew().
-    But the additional parameter makes it complicated.
+// scalar to matrix subtraction
+matrix* matsub_to(matrix *mat, double val)
+{
+    matrix *res = matcreate(mat->rows, mat->cols);
+    matrix *matval = matexpand_s(val, mat->rows, mat->cols);
+    res = matsub_ew(matval, mat);
+    return res;
+}
 
-    OR
+// matrix to scalar subtraction
+matrix* matsub_by(matrix *mat, double val)
+{
+    matrix *res = matcreate(mat->rows, mat->cols);
+    matrix *matval = matexpand_s(val, mat->rows, mat->cols);
+    res = matsub_ew(mat, matval);
+    return res;
+}
 
-    Call matops_ew() on each function:
-    
-    E.g. matadd_ew()
-         {
-            matops_ew(m1, m2, ops)
-         }
+// expand a scalar with size by copying
+matrix* matexpand_s(double val, int rows, int cols)
+{
+    matrix* res = matcreate(rows, cols);
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            res->values[i][j] = val;
+        }
+    } 
+    return res; 
+}
 
-    So, in main code, we can call matadd_ew(), matsub_ew etc..
-    Also do it on matrix to scalar operations.
-    
-*/
+// expand a vector with size by copying
+matrix* matexpand(matrix *mat, int axis, int size)
+{
+    matrix* res = NULL;
+    if (axis == 0) {
+        res = matcreate(size, mat->cols);
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < mat->cols; j++) {
+                res->values[i][j] = mat->values[0][j]; 
+            }
+        } 
+        return res;
+    } 
+    else if (axis == 1) {
+        res = matcreate(mat->rows, size);
+        for (int j = 0; j < size; j++) {
+            for (int i = 0; i < mat->rows; i++) {
+                res->values[i][j] = mat->values[i][0];
+            }
+        } 
+        return res;
+    } 
+    return res;
+}
