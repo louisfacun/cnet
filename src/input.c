@@ -30,7 +30,7 @@ input* inload(char *fpath, int n, int m)
     }
     
     // Storage of current file line
-    char buffer[512];
+    char buffer[10000];
 
     // Allocate input struct
     input *in = malloc(sizeof(input));
@@ -74,4 +74,9 @@ input* inload(char *fpath, int n, int m)
     }
     fclose(fp);
     return in;
+}
+
+random_mini_batches(matrix *X, matrix *Y, int mini_batch_size)
+{
+    
 }

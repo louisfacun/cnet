@@ -4,17 +4,22 @@
  */
 
 #include "activation.h"
+#include "matrix.h"
+
 #include <math.h>
 
-double sigmoid(double z)
+double sigmoid(double Z)
 {
-    // Sigmoid / logistic function.
-    return 1 / (1 + exp(-1 * z));
+    double A;
+    A  = 1 / (1 + exp(-1 * Z));
+
+    return A; 
 }
 
-
-double relu(double z)
+double relu(double Z)
 {
-    // Rectified Linear Unit (RELU) -> max(0, z)
-    return z <= 0 ? 0 : z;
+    double A;
+    A = (Z <= 0) ? 0 : Z;
+
+    return A;
 }

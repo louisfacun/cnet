@@ -22,6 +22,16 @@ matrix* matcreate(int rows, int cols)
     return res;
 }
 
+void matfree(matrix *mat)
+{
+    for (int i = 0; i < mat->rows; i++) {
+        free(mat->values[i]);
+    }
+    free(mat->values);
+    free(mat);
+    mat = NULL;
+}
+
 // put zeros to an existing matrix
 void matzeros(matrix *mat)
 {   
@@ -68,14 +78,6 @@ void matprint(matrix *mat)
     printf(" Size: (%d, %d)\n\n", mat->rows, mat->cols);
 }
 
-void matfree(matrix *mat)
-{
-    for (int i = 0; i < mat->rows; i++) {
-        free(mat->values[i]);
-    }
-    free(mat->values);
-    free(mat);
-}
 
 matrix* mattrans(matrix *mat)
 {   
@@ -108,7 +110,7 @@ matrix* matmul(matrix *mat1, matrix *mat2)
     return res;
 }
 
-matrix* matpow(matrix *mat, int val)
+matrix* matpow(matrix *mat, double val)
 {
     matrix *res = matcreate(mat->rows, mat->cols);
     for (int i = 0; i < mat->rows; i++) {
@@ -165,7 +167,25 @@ matrix* matmul_ew(matrix *mat1, matrix *mat2)
     return res;
 }
 
+// matrix to matrix element-wise division
+// TODO: use single nested loop for all ew
+matrix* matdiv_ew(matrix *mat1, matrix *mat2)
+{
+    if (!matisequal(mat1, mat2)) {
+        errsize(mat1->rows, mat1->cols, mat2->rows, mat2->cols);
+        exit(1);
+    }
+    matrix *res = matcreate(mat1->rows, mat1->cols);
+    for (int i = 0; i < mat1->rows; i++) {
+        for (int j = 0; j < mat1->cols; j++) {
+            res->values[i][j] = mat1->values[i][j] / mat2->values[i][j];
+        }
+    }
+    return res;
+}
+
 // matrix to scalar division
+// TODO: use braodcast + ew
 matrix* matdiv_by(matrix *mat, double val)
 {
     matrix* res = matcreate(mat->rows, mat->cols);
@@ -178,6 +198,7 @@ matrix* matdiv_by(matrix *mat, double val)
 }
 
 // matrix to scalar multiplication
+// TODO: use braodcast + ew
 matrix* matmul_by(matrix *mat, double val)
 {
     matrix* res = matcreate(mat->rows, mat->cols);
@@ -189,29 +210,7 @@ matrix* matmul_by(matrix *mat, double val)
     return res;
 }
 
-// apply element-wise sigmoid
-matrix* matsigmoid(matrix *mat)
-{
-    matrix* res = matcreate(mat->rows, mat->cols);
-    for (int i = 0; i < mat->rows; i++) {
-        for (int j = 0; j < mat->cols; j++) {
-            res->values[i][j] = sigmoid(mat->values[i][j]);
-        }
-    }
-    return res;
-}
 
-// apply element-wise relu
-matrix* matrelu(matrix *mat)
-{
-    matrix* res = matcreate(mat->rows, mat->cols);
-    for (int i = 0; i < mat->rows; i++) {
-        for (int j = 0; j < mat->cols; j++) {
-            res->values[i][j] = relu(mat->values[i][j]);
-        }
-    }
-    return res;
-}
 
 // apply element-wise logarithm
 matrix* matlog(matrix *mat)
@@ -253,7 +252,7 @@ double matsqz(matrix *mat)
 
 matrix* matcpy(matrix *mat)
 {
-    matrix* res = matcreate(mat->rows, mat->cols);
+    matrix *res = matcreate(mat->rows, mat->cols);
     for (int i = 0; i < mat->rows; i++) {
         for (int j = 0; j < mat->cols; j++) {
             res->values[i][j] = mat->values[i][j];
@@ -266,10 +265,15 @@ matrix* matcpy(matrix *mat)
 matrix* mataddvec_by(matrix *mat1, matrix *mat2)
 {
     matrix* res = matcreate(mat1->rows, mat1->cols);
-    if (!matisequal(mat1, mat2)) {
+    // None of both rows and cols matches
+    if (mat1->rows != mat2->rows && mat1->cols != mat2->cols)
+    {
         printf("Error: cannot broadcast, none of the sizes match: (%d, %d) != (%d, %d).\n", mat1->rows, mat1->cols, mat2->rows, mat2->cols);
         exit(1);
-    } else if (matisequal(mat1, mat2)) {
+    }
+    // Sanity check
+    else if (mat1->rows == mat2->rows && mat1->cols == mat2->cols)
+    {
         printf("Error: do not use this function, both sizes match: (%d, %d) == (%d, %d).\n", mat1->rows, mat1->cols, mat2->rows, mat2->cols);
         exit(1);
     }
@@ -335,6 +339,15 @@ matrix* matsub_by(matrix *mat, double val)
     return res;
 }
 
+// matrix to scalar addition
+matrix* matadd_by(matrix *mat, double val)
+{
+    matrix *res = matcreate(mat->rows, mat->cols);
+    matrix *matval = matexpand_s(val, mat->rows, mat->cols);
+    res = matadd_ew(mat, matval);
+    return res;
+}
+
 // expand a scalar with size by copying
 matrix* matexpand_s(double val, int rows, int cols)
 {
@@ -369,5 +382,62 @@ matrix* matexpand(matrix *mat, int axis, int size)
         } 
         return res;
     } 
+    return res;
+}
+
+
+// apply element-wise sigmoid
+matrix* matsigmoid(matrix *mat)
+{
+    matrix* res = matcreate(mat->rows, mat->cols);
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
+            res->values[i][j] = sigmoid(mat->values[i][j]);
+        }
+    }
+    return res;
+}
+
+// apply element-wise relu
+matrix* matrelu(matrix *mat)
+{
+    matrix* res = matcreate(mat->rows, mat->cols);
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
+            res->values[i][j] = relu(mat->values[i][j]);
+        }
+    }
+    return res;
+}
+
+// Apply 
+matrix* matsigmoid_backward(matrix *dA, matrix *Z)
+{
+    matrix *s = matpow(matadd_by(matexp(matmul_by(Z, -1)), 1), -1);
+    matrix *dZ = matmul_ew(dA, matmul_ew(s, matsub_to(s, 1)));
+    matfree(s);
+    return dZ;
+}
+
+matrix* matrelu_backward(matrix *dA, matrix *Z)
+{
+    matrix *dZ = matcpy(dA);
+    for (int i = 0; i < Z->cols; i++) {
+        if (Z->values[0][i] <= 0.0) {
+            dZ->values[0][i] = 0.0;
+        }
+    }
+    return dZ;
+}
+
+// apply element-wise exponential
+matrix* matexp(matrix *mat)
+{
+    matrix* res = matcreate(mat->rows, mat->cols);
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < mat->cols; j++) {
+            res->values[i][j] = exp(mat->values[i][j]);
+        }
+    }
     return res;
 }

@@ -9,7 +9,7 @@ CC = gcc
 CFLAGS = -Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -fPIC
 LDFLAGS = -lm
 
-OBJECT = activation.o input.o matrix.o network.o parameter.o util.o cnet.o
+OBJECT = activation.o input.o layer.o matrix.o network.o parameter.o util.o cnet.o
 OBJECTS = $(addprefix $(OBJECTDIR), $(OBJECT))
 HEADERS = $(wildcard *.h)
 

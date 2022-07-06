@@ -26,7 +26,8 @@ matrix* matmul_ew(matrix *mat1, matrix *mat2);
 matrix* matsum(matrix *mat, int axis);
 matrix* matmul_by(matrix *mat, double val);
 matrix* matdiv_by(matrix *mat, double val);
-matrix* matpow(matrix *mat, int val);
+matrix* matdiv_ew(matrix *mat1, matrix *mat2);
+matrix* matpow(matrix *mat, double val);
 matrix* matsigmoid(matrix *mat);
 matrix* matrelu(matrix *mat);
 matrix* matlog(matrix *mat);
@@ -41,5 +42,10 @@ matrix* matexpand_s(double val, int rows, int cols);
 matrix* matexpand(matrix *mat, int axis, int size);
 int matisequal(matrix *mat1, matrix *mat2);
 void errsize(int m1r, int m1c, int m2r, int m2c);
+matrix* matexp(matrix *mat);
+matrix* matadd_by(matrix *mat, double val);
+
+matrix* matsigmoid_backward(matrix *dA, matrix *Z);
+matrix* matrelu_backward(matrix *dA, matrix *Z);
 
 #endif
